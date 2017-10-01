@@ -4,6 +4,7 @@ import (
 	"bufio"
 	"github.com/tarm/serial"
 	"log"
+	"os"
 )
 
 func main() {
@@ -45,6 +46,10 @@ func read(device string) {
 
 	matchedData := matchData(data)
 
+
+	f, _ := os.OpenFile("data.log", os.O_RDWR | os.O_CREATE | os.O_APPEND, 0666)
+	defer f.Close()
+	log.SetOutput(f)
 
 	log.Print("start------------------------")
 	for key, value := range matchedData {
