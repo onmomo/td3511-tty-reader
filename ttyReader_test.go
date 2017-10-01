@@ -1,4 +1,4 @@
-package td3511reader
+package main
 
 import (
 	"testing"
