@@ -41,12 +41,12 @@ func read(device string) {
 	}
 
 	data := string(reply)
-	log.Print(data)
+	//log.Print(data)
 
 	matchedData := matchData(data)
 
 
-	log.Panicf("------------------------")
+	log.Print("start------------------------")
 	for key, value := range matchedData {
 		if value["omis"] == "1.8.0" {
 			log.Printf("1.8.0/%d: Verbrauch Gesamt (%s): %s", key, value["unit"], value["data"])
@@ -61,7 +61,7 @@ func read(device string) {
 		} else if value["omis"] == "2.8.2" {
 			log.Printf("2.8.2/%d: Lieferung Tarif 2 (%s): %s", key, value["unit"], value["data"])
 		}
-
 	}
+	log.Print("end------------------------")
 }
 
