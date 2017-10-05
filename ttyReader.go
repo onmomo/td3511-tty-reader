@@ -53,13 +53,17 @@ func read(device string) {
 	log.SetOutput(f)
 
 	log.Print("start------------------------")
-	conn, err := net.Dial("udp", "10.0.1.73:9999")
+	conn, err := net.Dial("udp", "10.0.1.2:9999")
 	if err != nil {
 		log.Panic(err)
 	}
 
 	for key, value := range matchedData {
-		if value["omis"] == "1.8.0" {
+		if value["omis"] == "1.7.0" {
+			data := value["data"]
+			conn.Write([]byte("1.7.0:" + data))
+			log.Printf("1.7.0/%d: Aktueller Verbrauch (%s): %s", key, value["unit"], data)
+		} else if value["omis"] == "1.8.0" {
 			data := value["data"]
 			conn.Write([]byte("1.8.0:" + data))
 			log.Printf("1.8.0/%d: Verbrauch Gesamt (%s): %s", key, value["unit"], data)
@@ -71,6 +75,10 @@ func read(device string) {
 			data := value["data"]
 			conn.Write([]byte("1.8.2:" + data))
 			log.Printf("1.8.2/%d: Verbrauch Tarif 2 (%s): %s", key, value["unit"], data)
+		} else if value["omis"] == "2.7.0" {
+			data := value["data"]
+			conn.Write([]byte("2.7.0:" + data))
+			log.Printf("2.7.0/%d: Aktuelle Lieferung (%s): %s", key, value["unit"], data)
 		} else if value["omis"] == "2.8.0" {
 			data := value["data"]
 			conn.Write([]byte("2.8.0:" + data))
