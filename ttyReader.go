@@ -5,6 +5,7 @@ import (
 	"github.com/tarm/serial"
 	"log"
 	"os"
+	"net"
 )
 
 func main() {
@@ -52,21 +53,39 @@ func read(device string) {
 	log.SetOutput(f)
 
 	log.Print("start------------------------")
+	conn, err := net.Dial("udp", "10.0.1.73:9999")
+	if err != nil {
+		log.Panic(err)
+	}
+
 	for key, value := range matchedData {
 		if value["omis"] == "1.8.0" {
-			log.Printf("1.8.0/%d: Verbrauch Gesamt (%s): %s", key, value["unit"], value["data"])
+			data := value["data"]
+			conn.Write([]byte("1.8.0:" + data))
+			log.Printf("1.8.0/%d: Verbrauch Gesamt (%s): %s", key, value["unit"], data)
 		} else if value["omis"] == "1.8.1" {
-			log.Printf("1.8.1/%d: Verbrauch Tarif 1 (%s): %s", key, value["unit"], value["data"])
+			data := value["data"]
+			conn.Write([]byte("1.8.1:" + data))
+			log.Printf("1.8.1/%d: Verbrauch Tarif 1 (%s): %s", key, value["unit"], data)
 		} else if value["omis"] == "1.8.2" {
-			log.Printf("1.8.2/%d: Verbrauch Tarif 2 (%s): %s", key, value["unit"], value["data"])
+			data := value["data"]
+			conn.Write([]byte("1.8.2:" + data))
+			log.Printf("1.8.2/%d: Verbrauch Tarif 2 (%s): %s", key, value["unit"], data)
 		} else if value["omis"] == "2.8.0" {
-			log.Printf("2.8.0/%d: Lieferung Gesamt (%s): %s", key, value["unit"], value["data"])
+			data := value["data"]
+			conn.Write([]byte("2.8.0:" + data))
+			log.Printf("2.8.0/%d: Lieferung Gesamt (%s): %s", key, value["unit"], data)
 		} else if value["omis"] == "2.8.1" {
-			log.Printf("2.8.1/%d: Lieferung Tarif 1 (%s): %s", key, value["unit"], value["data"])
+			data := value["data"]
+			conn.Write([]byte("2.8.1:" + data))
+			log.Printf("2.8.1/%d: Lieferung Tarif 1 (%s): %s", key, value["unit"], data)
 		} else if value["omis"] == "2.8.2" {
-			log.Printf("2.8.2/%d: Lieferung Tarif 2 (%s): %s", key, value["unit"], value["data"])
+			data := value["data"]
+			conn.Write([]byte("2.8.2:" + data))
+			log.Printf("2.8.2/%d: Lieferung Tarif 2 (%s): %s", key, value["unit"], data)
 		}
 	}
+	conn.Close()
 	log.Print("end------------------------")
 }
 
