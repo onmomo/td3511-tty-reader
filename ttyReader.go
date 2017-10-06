@@ -32,7 +32,7 @@ func read(device string) {
 
 	_, err2 := s.Write([]byte("\x06\x30\x30\x30\x0D\x0A"))
 	if err2 != nil {
-		log.Fatal(err)
+		log.Fatal(err2)
 	}
 
 	log.Print("Reading data...")
@@ -52,6 +52,7 @@ func read(device string) {
 	log.SetOutput(f)
 
 	log.Print("start------------------------")
+	log.Printf("read %s data records", len(matchedData))
 	conn, err := net.Dial("udp", "10.0.1.2:9999")
 	if err != nil {
 		log.Panic(err)
