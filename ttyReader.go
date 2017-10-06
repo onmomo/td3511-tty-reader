@@ -4,8 +4,8 @@ import (
 	"bufio"
 	"github.com/tarm/serial"
 	"log"
-	"os"
 	"net"
+	"os"
 )
 
 func main() {
@@ -14,7 +14,7 @@ func main() {
 
 func read(device string) {
 	log.Printf("Opening device '%s'...", device)
-	c := &serial.Config{Name: device, Baud: 300, Size: 7, Parity:'E'}
+	c := &serial.Config{Name: device, Baud: 300, Size: 7, Parity: 'E'}
 	s, err := serial.OpenPort(c)
 	if err != nil {
 		log.Fatal(err)
@@ -47,8 +47,7 @@ func read(device string) {
 
 	matchedData := matchData(data)
 
-
-	f, _ := os.OpenFile("data.log", os.O_RDWR | os.O_CREATE | os.O_APPEND, 0666)
+	f, _ := os.OpenFile("data.log", os.O_RDWR|os.O_CREATE|os.O_APPEND, 0666)
 	defer f.Close()
 	log.SetOutput(f)
 
@@ -96,4 +95,3 @@ func read(device string) {
 	conn.Close()
 	log.Print("end------------------------")
 }
-

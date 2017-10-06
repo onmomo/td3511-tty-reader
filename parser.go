@@ -4,13 +4,9 @@ import (
 	"regexp"
 )
 
-// embed regexp.Regexp in a new type so we can extend it
+var pex, _ = regexp.Compile(`(?P<omis>\d+\.\d+(\.\d)?)\((?P<data>\d+\.\d+)\*(?P<unit>\S+)\)`)
 
-// an example regular expression
-
-var pex, _ = regexp.Compile(`(?P<omis>\d+\.\d+\.\d+)\((?P<data>\d+\.\d+)\*(?P<unit>kWh)\)`)
-
-func matchData(str string) ([]map[string]string) {
+func matchData(str string) []map[string]string {
 
 	match := pex.FindAllStringSubmatch(str, -1)
 	var data []map[string]string
