@@ -24,7 +24,7 @@ func initLogger() {
 	logger := log.Logger()
 	logger.SetAppender(appenders.RollingFile("smartmeter.log", true))
 	appender := logger.Appender()
-	appender.SetLayout(layout.Pattern("%d %p %l - %m%n"))
+	appender.SetLayout(layout.Pattern("%d %p - %m%n"))
 }
 
 func read(device string, host string, protocol string) {
