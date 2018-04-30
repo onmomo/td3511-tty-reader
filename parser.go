@@ -10,11 +10,10 @@ func matchData(str string) []map[string]string {
 
 	match := pex.FindAllStringSubmatch(str, -1)
 	var data []map[string]string
-	for ind, _ := range match {
+	for ind := range match {
 		subMatchMap := make(map[string]string)
 		for i, name := range pex.SubexpNames() {
 
-			//log.Printf("index: %d name: %s", i, name)
 			if name == "omis" || name == "data" || name == "unit" {
 				subMatchMap[name] = match[ind][i]
 			}

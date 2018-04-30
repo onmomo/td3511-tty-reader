@@ -2,18 +2,24 @@ package main
 
 import (
 	"bufio"
-	"github.com/tarm/serial"
-	"log"
+	"flag"
 	"net"
-	"os"
+
+	"github.com/ian-kent/go-log/appenders"
+	"github.com/ian-kent/go-log/log"
+	"github.com/tarm/serial"
 )
 
 func main() {
-	read("/dev/ttyUSB0")
+	devicePtr := flag.String("device", "/dev/ttyUSB0", "the smartmeter device")
+	flag.Parse()
+	logger := log.Logger()
+	logger.SetAppender(appenders.RollingFile("smartmeter.log", true))
+	read(*devicePtr)
 }
 
 func read(device string) {
-	log.Printf("Opening device '%s'...", device)
+	log.Debug("Opening device '%s'...", device)
 	c := &serial.Config{Name: device, Baud: 300, Size: 7, Parity: 'E'}
 	s, err := serial.OpenPort(c)
 	if err != nil {
@@ -35,11 +41,11 @@ func read(device string) {
 		log.Fatal(err2)
 	}
 
-	log.Print("Reading data...")
+	log.Debug("Reading data...")
 	reader := bufio.NewReader(s)
 	reply, err := reader.ReadBytes('\x21')
 	if err != nil {
-		panic(err)
+		log.Fatal(err)
 	}
 
 	data := string(reply)
@@ -47,52 +53,48 @@ func read(device string) {
 
 	matchedData := matchData(data)
 
-	f, _ := os.OpenFile("data.log", os.O_RDWR|os.O_CREATE|os.O_APPEND, 0666)
-	defer f.Close()
-	log.SetOutput(f)
-
-	log.Print("start------------------------")
-	log.Printf("read %s data records", len(matchedData))
+	log.Debug("start------------------------")
+	log.Info("read %d data records", len(matchedData))
 	conn, err := net.Dial("udp", "10.0.1.2:9999")
 	if err != nil {
-		log.Panic(err)
+		log.Fatal(err)
 	}
 
 	for key, value := range matchedData {
 		if value["omis"] == "1.7.0" {
 			data := value["data"]
 			conn.Write([]byte("1.7.0:" + data))
-			log.Printf("1.7.0/%d: Aktueller Verbrauch (%s): %s", key, value["unit"], data)
+			log.Info("1.7.0/%d: Aktueller Verbrauch (%s): %s", key, value["unit"], data)
 		} else if value["omis"] == "1.8.0" {
 			data := value["data"]
 			conn.Write([]byte("1.8.0:" + data))
-			log.Printf("1.8.0/%d: Verbrauch Gesamt (%s): %s", key, value["unit"], data)
+			log.Info("1.8.0/%d: Verbrauch Gesamt (%s): %s", key, value["unit"], data)
 		} else if value["omis"] == "1.8.1" {
 			data := value["data"]
 			conn.Write([]byte("1.8.1:" + data))
-			log.Printf("1.8.1/%d: Verbrauch Tarif 1 (%s): %s", key, value["unit"], data)
+			log.Info("1.8.1/%d: Verbrauch Tarif 1 (%s): %s", key, value["unit"], data)
 		} else if value["omis"] == "1.8.2" {
 			data := value["data"]
 			conn.Write([]byte("1.8.2:" + data))
-			log.Printf("1.8.2/%d: Verbrauch Tarif 2 (%s): %s", key, value["unit"], data)
+			log.Info("1.8.2/%d: Verbrauch Tarif 2 (%s): %s", key, value["unit"], data)
 		} else if value["omis"] == "2.7.0" {
 			data := value["data"]
 			conn.Write([]byte("2.7.0:" + data))
-			log.Printf("2.7.0/%d: Aktuelle Lieferung (%s): %s", key, value["unit"], data)
+			log.Info("2.7.0/%d: Aktuelle Lieferung (%s): %s", key, value["unit"], data)
 		} else if value["omis"] == "2.8.0" {
 			data := value["data"]
 			conn.Write([]byte("2.8.0:" + data))
-			log.Printf("2.8.0/%d: Lieferung Gesamt (%s): %s", key, value["unit"], data)
+			log.Info("2.8.0/%d: Lieferung Gesamt (%s): %s", key, value["unit"], data)
 		} else if value["omis"] == "2.8.1" {
 			data := value["data"]
 			conn.Write([]byte("2.8.1:" + data))
-			log.Printf("2.8.1/%d: Lieferung Tarif 1 (%s): %s", key, value["unit"], data)
+			log.Info("2.8.1/%d: Lieferung Tarif 1 (%s): %s", key, value["unit"], data)
 		} else if value["omis"] == "2.8.2" {
 			data := value["data"]
 			conn.Write([]byte("2.8.2:" + data))
-			log.Printf("2.8.2/%d: Lieferung Tarif 2 (%s): %s", key, value["unit"], data)
+			log.Info("2.8.2/%d: Lieferung Tarif 2 (%s): %s", key, value["unit"], data)
 		}
 	}
 	conn.Close()
-	log.Print("end------------------------")
+	log.Debug("end------------------------")
 }
