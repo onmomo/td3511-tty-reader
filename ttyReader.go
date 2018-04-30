@@ -97,7 +97,7 @@ func read(device string, host string, protocol string) {
 			log.Info("2.8.2/%d: Lieferung Tarif 2 (%s): %s", key, value["unit"], data)
 		}
 	}
-	log.Info("processed all data records, closing connection ...", protocol, host)
+	log.Info("sucessfully processed all data records, closing connection ...")
 	conn.Close()
-	log.Info("Closing TD3511 smartmeter, bye bye.", protocol, host)
+	log.Info("Closing TD3511 smartmeter, bye bye.")
 }
