@@ -6,6 +6,7 @@ import (
 	"net"
 
 	"github.com/ian-kent/go-log/appenders"
+	"github.com/ian-kent/go-log/layout"
 	"github.com/ian-kent/go-log/log"
 	"github.com/tarm/serial"
 )
@@ -15,9 +16,15 @@ func main() {
 	hostPtr := flag.String("host", "10.0.1.2:9999", "the host that will receive the data")
 	protocolPtr := flag.String("protocol", "udp", "the protocol for the host connection (tcp, udp and IP networks)")
 	flag.Parse()
+	initLogger()
+	read(*devicePtr, *hostPtr, *protocolPtr)
+}
+
+func initLogger() {
 	logger := log.Logger()
 	logger.SetAppender(appenders.RollingFile("smartmeter.log", true))
-	read(*devicePtr, *hostPtr, *protocolPtr)
+	appender := logger.Appender()
+	appender.SetLayout(layout.Pattern("%d %p %l - %m%n"))
 }
 
 func read(device string, host string, protocol string) {
