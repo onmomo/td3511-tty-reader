@@ -14,6 +14,7 @@
 *.out
 
 bin/*
+td3511-tty-reader
 
 *.iml
 .idea
