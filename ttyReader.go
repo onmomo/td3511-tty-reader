@@ -12,14 +12,15 @@ import (
 
 func main() {
 	devicePtr := flag.String("device", "/dev/ttyUSB0", "the smartmeter device")
-	udpTargetPtr := flag.String("UDPTarget", "10.0.1.2:9999", "the UDP host that will receive the data")
+	hostPtr := flag.String("host", "10.0.1.2:9999", "the host that will receive the data")
+	protocolPtr := flag.String("protocl", "UDP", "the protocol for the host connection (UDP, TCP)")
 	flag.Parse()
 	logger := log.Logger()
 	logger.SetAppender(appenders.RollingFile("smartmeter.log", true))
-	read(*devicePtr, *udpTargetPtr)
+	read(*devicePtr, *hostPtr, *protocolPtr)
 }
 
-func read(device string, udpTarget string) {
+func read(device string, host string, protocol string) {
 	log.Debug("Opening device '%s'...", device)
 	c := &serial.Config{Name: device, Baud: 300, Size: 7, Parity: 'E'}
 	s, err := serial.OpenPort(c)
@@ -27,7 +28,7 @@ func read(device string, udpTarget string) {
 		log.Fatal(err)
 	}
 
-	log.Info("Configure smartmeter Td3511 for read out ...", device)
+	log.Info("Configure smartmeter Td3511 for read out ...")
 	_, err = s.Write([]byte("1:0:9a7:0:3:1c:7f:15:4:5:1:0:11:13:1a:0:12:f:17:16:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0"))
 	if err != nil {
 		log.Fatal(err)
@@ -55,8 +56,9 @@ func read(device string, udpTarget string) {
 	matchedData := matchData(data)
 
 	log.Debug("start------------------------")
-	log.Info("read %d data records", len(matchedData))
-	conn, err := net.Dial("udp", "udpTarget")
+	log.Info("received %d data records", len(matchedData))
+	log.Info("opening %s connection to %s ...", protocol, host)
+	conn, err := net.Dial(protocol, host)
 	if err != nil {
 		log.Fatal(err)
 	}
