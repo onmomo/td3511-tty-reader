@@ -13,7 +13,7 @@ import (
 func main() {
 	devicePtr := flag.String("device", "/dev/ttyUSB0", "the smartmeter device")
 	hostPtr := flag.String("host", "10.0.1.2:9999", "the host that will receive the data")
-	protocolPtr := flag.String("protocl", "UDP", "the protocol for the host connection (TCP, UDP and IP networks)")
+	protocolPtr := flag.String("protocol", "udp", "the protocol for the host connection (tcp, udp and IP networks)")
 	flag.Parse()
 	logger := log.Logger()
 	logger.SetAppender(appenders.RollingFile("smartmeter.log", true))
