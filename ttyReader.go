@@ -17,9 +17,10 @@ func main() {
 	devicePtr := flag.String("device", "/dev/ttyUSB0", "the smartmeter device")
 	hostPtr := flag.String("host", "10.0.1.2:9999", "the host that will receive the data")
 	protocolPtr := flag.String("protocol", "udp", "the protocol for the host connection (tcp, udp and IP networks)")
+	readTimeoutPtr := time.Duration(*flag.Int("readTimeout", 5, "the smartmeter device read timeout in minutes")) * time.Minute
 	flag.Parse()
 	initLogger()
-	read(*devicePtr, *hostPtr, *protocolPtr)
+	read(*devicePtr, *hostPtr, *protocolPtr, readTimeoutPtr)
 }
 
 func initLogger() {
@@ -29,9 +30,8 @@ func initLogger() {
 	appender.SetLayout(layout.Pattern("%d %p - %m%n"))
 }
 
-func read(device string, host string, protocol string) {
+func read(device string, host string, protocol string, readTimeout time.Duration) {
 	log.Info("Opening smartmeter device '%s' ...", device)
-	readTimeout := time.Duration(5) * time.Minute
 	c := &serial.Config{Name: device, Baud: 300, Size: 7, Parity: 'E', ReadTimeout: readTimeout}
 	s, err := serial.OpenPort(c)
 	if err != nil {

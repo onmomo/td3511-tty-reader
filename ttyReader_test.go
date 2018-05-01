@@ -2,7 +2,6 @@ package main
 
 import (
 	"bufio"
-	"log"
 	"os"
 	"testing"
 
@@ -18,7 +17,8 @@ func TestDataParsing(t *testing.T) {
 	}
 
 	matches := matchData(readData)
-	log.Print(len(matches))
+
+	assert.Len(t, matches, 48)
 
 	kwhMap := map[string]string{
 		"omis": "2.8.1",
