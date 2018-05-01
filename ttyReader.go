@@ -37,7 +37,7 @@ func read(device string, host string, protocol string) {
 		log.Fatal(err)
 	}
 
-	log.Debug("Waiting a maximum of %d minutes for smartmeter data.", readTimeout)
+	log.Debug("Waiting a maximum of %s minutes for smartmeter data.", readTimeout)
 
 	log.Info("Configure smartmeter Td3511 for read out ...")
 	_, err = s.Write([]byte("1:0:9a7:0:3:1c:7f:15:4:5:1:0:11:13:1a:0:12:f:17:16:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0"))
