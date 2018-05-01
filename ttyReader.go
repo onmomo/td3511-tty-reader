@@ -35,6 +35,7 @@ func read(device string, host string, protocol string) {
 	c := &serial.Config{Name: device, Baud: 300, Size: 7, Parity: 'E', ReadTimeout: readTimeout}
 	s, err := serial.OpenPort(c)
 	if err != nil {
+		log.Error("Couldn't open connection to smartmeter device '%s'. Abort.", device)
 		log.Fatal(err)
 		os.Exit(-1000)
 	}
@@ -51,6 +52,7 @@ func read(device string, host string, protocol string) {
 	_, err = s.Write([]byte("\x2F\x3F\x21\x0D\x0A"))
 	if err != nil {
 		log.Fatal(err)
+		os.Exit(-1000)
 	}
 
 	_, err = s.Write([]byte("\x06\x30\x30\x30\x0D\x0A"))
@@ -63,7 +65,7 @@ func read(device string, host string, protocol string) {
 	reader := bufio.NewReader(s)
 	readData, err := reader.ReadString('\x21')
 	if err != nil {
-		log.Error("Couldn't read any data.")
+		log.Error("Couldn't read any data from smartmeter within timeout. Abort.")
 		log.Fatal(err)
 		os.Exit(-2000)
 	}
