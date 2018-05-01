@@ -30,7 +30,7 @@ func initLogger() {
 
 func read(device string, host string, protocol string) {
 	log.Info("Opening smartmeter device '%s' ...", device)
-	readTimeout := time.Minute * 5
+	readTimeout := time.Duration(5) * time.Minute
 	c := &serial.Config{Name: device, Baud: 300, Size: 7, Parity: 'E', ReadTimeout: readTimeout}
 	s, err := serial.OpenPort(c)
 	if err != nil {
