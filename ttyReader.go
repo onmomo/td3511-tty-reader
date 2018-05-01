@@ -4,6 +4,7 @@ import (
 	"bufio"
 	"flag"
 	"net"
+	"os"
 	"time"
 
 	"github.com/ian-kent/go-log/appenders"
@@ -35,6 +36,7 @@ func read(device string, host string, protocol string) {
 	s, err := serial.OpenPort(c)
 	if err != nil {
 		log.Fatal(err)
+		os.Exit(-1000)
 	}
 
 	log.Debug("Waiting a maximum of %s minutes for smartmeter data.", readTimeout)
@@ -43,6 +45,7 @@ func read(device string, host string, protocol string) {
 	_, err = s.Write([]byte("1:0:9a7:0:3:1c:7f:15:4:5:1:0:11:13:1a:0:12:f:17:16:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0"))
 	if err != nil {
 		log.Fatal(err)
+		os.Exit(-1000)
 	}
 
 	_, err = s.Write([]byte("\x2F\x3F\x21\x0D\x0A"))
@@ -53,6 +56,7 @@ func read(device string, host string, protocol string) {
 	_, err = s.Write([]byte("\x06\x30\x30\x30\x0D\x0A"))
 	if err != nil {
 		log.Fatal(err)
+		os.Exit(-1000)
 	}
 
 	log.Info("Waiting for data ...")
@@ -61,6 +65,7 @@ func read(device string, host string, protocol string) {
 	if err != nil {
 		log.Error("Couldn't read any data.")
 		log.Fatal(err)
+		os.Exit(-2000)
 	}
 
 	matchedData := matchData(readData)
@@ -70,7 +75,9 @@ func read(device string, host string, protocol string) {
 		log.Info("Opening %s connection to %s ...", protocol, host)
 		conn, err := net.Dial(protocol, host)
 		if err != nil {
+			log.Error("Couldn't open %s connection to %s.", protocol, host)
 			log.Fatal(err)
+			os.Exit(-3000)
 		}
 
 		for key, value := range matchedData {
@@ -115,4 +122,5 @@ func read(device string, host string, protocol string) {
 	}
 
 	log.Info("Closing TD3511 smartmeter, bye bye.")
+	os.Exit(0)
 }
