@@ -46,65 +46,69 @@ func read(device string, host string, protocol string) {
 		log.Fatal(err)
 	}
 
-	_, err2 := s.Write([]byte("\x06\x30\x30\x30\x0D\x0A"))
-	if err2 != nil {
-		log.Fatal(err2)
+	_, err = s.Write([]byte("\x06\x30\x30\x30\x0D\x0A"))
+	if err != nil {
+		log.Fatal(err)
 	}
 
 	log.Info("Waiting for data ...")
 	reader := bufio.NewReader(s)
-	reply, err := reader.ReadBytes('\x21')
+	readData, err := reader.ReadString('\x21')
 	if err != nil {
+		log.Error("Couldn't read any data.")
 		log.Fatal(err)
 	}
 
-	data := string(reply)
-
-	matchedData := matchData(data)
-
-	log.Info("received %d data records.", len(matchedData))
-	log.Info("opening %s connection to %s ...", protocol, host)
-	conn, err := net.Dial(protocol, host)
-	if err != nil {
-		log.Fatal(err)
-	}
-
-	for key, value := range matchedData {
-		if value["omis"] == "1.7.0" {
-			data := value["data"]
-			conn.Write([]byte("1.7.0:" + data))
-			log.Info("1.7.0/%d: Aktueller Verbrauch (%s): %s", key, value["unit"], data)
-		} else if value["omis"] == "1.8.0" {
-			data := value["data"]
-			conn.Write([]byte("1.8.0:" + data))
-			log.Info("1.8.0/%d: Verbrauch Gesamt (%s): %s", key, value["unit"], data)
-		} else if value["omis"] == "1.8.1" {
-			data := value["data"]
-			conn.Write([]byte("1.8.1:" + data))
-			log.Info("1.8.1/%d: Verbrauch Tarif 1 (%s): %s", key, value["unit"], data)
-		} else if value["omis"] == "1.8.2" {
-			data := value["data"]
-			conn.Write([]byte("1.8.2:" + data))
-			log.Info("1.8.2/%d: Verbrauch Tarif 2 (%s): %s", key, value["unit"], data)
-		} else if value["omis"] == "2.7.0" {
-			data := value["data"]
-			conn.Write([]byte("2.7.0:" + data))
-			log.Info("2.7.0/%d: Aktuelle Lieferung (%s): %s", key, value["unit"], data)
-		} else if value["omis"] == "2.8.0" {
-			data := value["data"]
-			conn.Write([]byte("2.8.0:" + data))
-			log.Info("2.8.0/%d: Lieferung Gesamt (%s): %s", key, value["unit"], data)
-		} else if value["omis"] == "2.8.1" {
-			data := value["data"]
-			conn.Write([]byte("2.8.1:" + data))
-			log.Info("2.8.1/%d: Lieferung Tarif 1 (%s): %s", key, value["unit"], data)
-		} else if value["omis"] == "2.8.2" {
-			data := value["data"]
-			conn.Write([]byte("2.8.2:" + data))
-			log.Info("2.8.2/%d: Lieferung Tarif 2 (%s): %s", key, value["unit"], data)
+	matchedData := matchData(readData)
+	matchedDataSize := len(matchedData)
+	log.Info("received %d data records.", matchedDataSize)
+	if matchedDataSize > 0 {
+		log.Info("opening %s connection to %s ...", protocol, host)
+		conn, err := net.Dial(protocol, host)
+		if err != nil {
+			log.Fatal(err)
 		}
+
+		for key, value := range matchedData {
+			if value["omis"] == "1.7.0" {
+				data := value["data"]
+				conn.Write([]byte("1.7.0:" + data))
+				log.Info("1.7.0/%d: Aktueller Verbrauch (%s): %s", key, value["unit"], data)
+			} else if value["omis"] == "1.8.0" {
+				data := value["data"]
+				conn.Write([]byte("1.8.0:" + data))
+				log.Info("1.8.0/%d: Verbrauch Gesamt (%s): %s", key, value["unit"], data)
+			} else if value["omis"] == "1.8.1" {
+				data := value["data"]
+				conn.Write([]byte("1.8.1:" + data))
+				log.Info("1.8.1/%d: Verbrauch Tarif 1 (%s): %s", key, value["unit"], data)
+			} else if value["omis"] == "1.8.2" {
+				data := value["data"]
+				conn.Write([]byte("1.8.2:" + data))
+				log.Info("1.8.2/%d: Verbrauch Tarif 2 (%s): %s", key, value["unit"], data)
+			} else if value["omis"] == "2.7.0" {
+				data := value["data"]
+				conn.Write([]byte("2.7.0:" + data))
+				log.Info("2.7.0/%d: Aktuelle Lieferung (%s): %s", key, value["unit"], data)
+			} else if value["omis"] == "2.8.0" {
+				data := value["data"]
+				conn.Write([]byte("2.8.0:" + data))
+				log.Info("2.8.0/%d: Lieferung Gesamt (%s): %s", key, value["unit"], data)
+			} else if value["omis"] == "2.8.1" {
+				data := value["data"]
+				conn.Write([]byte("2.8.1:" + data))
+				log.Info("2.8.1/%d: Lieferung Tarif 1 (%s): %s", key, value["unit"], data)
+			} else if value["omis"] == "2.8.2" {
+				data := value["data"]
+				conn.Write([]byte("2.8.2:" + data))
+				log.Info("2.8.2/%d: Lieferung Tarif 2 (%s): %s", key, value["unit"], data)
+			}
+		}
+		log.Info("sucessfully processed all %d data records, closing connection ...", matchedDataSize)
+		conn.Close()
+	} else {
+		log.Warn("Couldn't match any data records.")
 	}
-	log.Info("sucessfully processed all data records, closing connection ...")
-	conn.Close()
+
 	log.Info("Closing TD3511 smartmeter, bye bye.")
 }
