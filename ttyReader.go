@@ -4,6 +4,7 @@ import (
 	"bufio"
 	"flag"
 	"net"
+	"time"
 
 	"github.com/ian-kent/go-log/appenders"
 	"github.com/ian-kent/go-log/layout"
@@ -28,12 +29,15 @@ func initLogger() {
 }
 
 func read(device string, host string, protocol string) {
-	log.Debug("Opening device '%s' ...", device)
-	c := &serial.Config{Name: device, Baud: 300, Size: 7, Parity: 'E'}
+	log.Info("Opening smartmeter device '%s' ...", device)
+	readTimeout := time.Minute * 5
+	c := &serial.Config{Name: device, Baud: 300, Size: 7, Parity: 'E', ReadTimeout: readTimeout}
 	s, err := serial.OpenPort(c)
 	if err != nil {
 		log.Fatal(err)
 	}
+
+	log.Debug("Waiting a maximum of %d minutes for smartmeter data.", readTimeout)
 
 	log.Info("Configure smartmeter Td3511 for read out ...")
 	_, err = s.Write([]byte("1:0:9a7:0:3:1c:7f:15:4:5:1:0:11:13:1a:0:12:f:17:16:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0"))
@@ -61,9 +65,9 @@ func read(device string, host string, protocol string) {
 
 	matchedData := matchData(readData)
 	matchedDataSize := len(matchedData)
-	log.Info("received %d data records.", matchedDataSize)
+	log.Info("Received %d data records.", matchedDataSize)
 	if matchedDataSize > 0 {
-		log.Info("opening %s connection to %s ...", protocol, host)
+		log.Info("Opening %s connection to %s ...", protocol, host)
 		conn, err := net.Dial(protocol, host)
 		if err != nil {
 			log.Fatal(err)
@@ -104,7 +108,7 @@ func read(device string, host string, protocol string) {
 				log.Info("2.8.2/%d: Lieferung Tarif 2 (%s): %s", key, value["unit"], data)
 			}
 		}
-		log.Info("sucessfully processed all %d data records, closing connection ...", matchedDataSize)
+		log.Info("Sucessfully processed all %d data records, closing connection ...", matchedDataSize)
 		conn.Close()
 	} else {
 		log.Warn("Couldn't match any data records.")
