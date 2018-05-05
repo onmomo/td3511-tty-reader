@@ -124,5 +124,6 @@ func read(device string, host string, protocol string, readTimeout time.Duration
 	}
 
 	log.Info("Closing TD3511 smartmeter, bye bye.")
+	s.Close()
 	os.Exit(0)
 }
