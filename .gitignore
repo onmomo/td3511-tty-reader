@@ -14,6 +14,7 @@
 *.out
 
 bin/*
+smartmeter.log
 td3511-tty-reader
 
 *.iml
